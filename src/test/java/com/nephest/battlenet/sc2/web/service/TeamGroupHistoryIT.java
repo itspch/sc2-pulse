@@ -320,7 +320,8 @@ public class TeamGroupHistoryIT
                 StaticColumn.QUEUE_TYPE,
                 StaticColumn.TEAM_TYPE,
                 StaticColumn.REGION,
-                StaticColumn.LEGACY_ID
+                StaticColumn.LEGACY_ID,
+                StaticColumn.LEGACY_UID
             )
                 .collect(Collectors.toMap(
                     Function.identity(),

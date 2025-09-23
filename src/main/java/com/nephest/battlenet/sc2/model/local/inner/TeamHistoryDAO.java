@@ -316,7 +316,8 @@ public class TeamHistoryDAO
                 StaticColumn.REGION,
                 StaticColumn.QUEUE_TYPE,
                 StaticColumn.TEAM_TYPE,
-                StaticColumn.LEGACY_ID
+                StaticColumn.LEGACY_ID,
+                StaticColumn.LEGACY_UID
             ),
             EnumSet.of
             (
@@ -820,6 +821,9 @@ public class TeamHistoryDAO
 
     private static String generateFindColumnsQuery(HistoryParameters parameters)
     {
+        List<StaticColumn> directStaticColumns = parameters.staticColumns().stream()
+            .filter(staticColumn->!staticColumn.isExpanded())
+            .toList();
         List<HistoryColumn> directHistoryColumns = parameters.historyColumns().stream()
             .filter(historyColumn ->!historyColumn.isExpanded())
             .toList();
@@ -844,10 +848,10 @@ public class TeamHistoryDAO
             Stream.concat
             (
                 directHistoryColumns.stream().map(FINAL_HISTORY_FQDN_NAMES::get),
-                parameters.staticColumns().stream().map(StaticColumn::getAliasedName)
+                directStaticColumns.stream().map(StaticColumn::getAliasedName)
             )
                 .collect(Collectors.joining(PARAMETER_JOIN_DELIMITER)),
-            parameters.staticColumns().stream()
+            directStaticColumns.stream()
                 .map(StaticColumn::getJoins)
                 .flatMap(Collection::stream)
                 .distinct()
@@ -1257,22 +1261,22 @@ public class TeamHistoryDAO
         GroupMode groupMode
     )
     {
+        Set<StaticColumn> directGroupedStaticColumns =
+            Stream.of(groupMode.getGroupStaticColumns(), parameters.staticColumns())
+                .flatMap(Collection::stream)
+                .filter(s->!s.isExpanded())
+                .collect(Collectors.toSet());
         return FIND_SUMMARY_TEMPLATE.formatted
         (
             Stream.concat
             (
-                Stream.of(groupMode.getGroupStaticColumns(), parameters.staticColumns())
-                    .flatMap(Collection::stream)
-                    .distinct()
-                    .map(StaticColumn::getName),
+                directGroupedStaticColumns.stream().map(StaticColumn::getName),
                 parameters.summaryColumns().stream()
                     .map(SummaryColumn::getDataAliasedColumn)
                     .distinct()
             )
                 .collect(Collectors.joining(PARAMETER_JOIN_DELIMITER)),
-            Stream.of(groupMode.getGroupStaticColumns(), parameters.staticColumns())
-                .flatMap(Collection::stream)
-                .distinct()
+            directGroupedStaticColumns.stream()
                 .map(StaticColumn::getJoins)
                 .flatMap(Collection::stream)
                 .distinct()
@@ -1281,6 +1285,7 @@ public class TeamHistoryDAO
             Stream.concat
             (
                 parameters.staticColumns().stream()
+                    .filter(s->!s.isExpanded())
                     .map(StaticColumn::getAggregationAliasedName),
                 parameters.summaryColumns().stream()
                     .map(SummaryColumn::getAggregationAliasedFunction)
@@ -1288,6 +1293,7 @@ public class TeamHistoryDAO
                 .collect(Collectors.joining(PARAMETER_JOIN_DELIMITER)),
 
             groupMode.getGroupStaticColumns().stream()
+                .filter(s->!s.isExpanded())
                 .map(StaticColumn::getName)
                 .collect(Collectors.joining(PARAMETER_JOIN_DELIMITER)),
             FIND_SUMMARY_ID_COLUMN.get(groupMode)
