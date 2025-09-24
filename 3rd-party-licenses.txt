@@ -29,6 +29,10 @@ You can use this package under one of these two licenses: CC BY 4.0 or GPL.
 http://creativecommons.org/licenses/by/4.0/
 http://www.gnu.org/licenses/gpl.html
 
+# Entypo icons
+The Entypo pictograms by Daniel Bruce http://www.entypo.com/ are licensed under CC BY 3.0
+http://creativecommons.org/licenses/by/3.0/
+
 # liquipedia.net icons
 
 http://creativecommons.org/licenses/by-sa/3.0/us/

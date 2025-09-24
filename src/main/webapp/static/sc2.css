@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'sc2pulse';
-  src: url('font/sc2pulse.woff?vjti63') format('woff');
+  src: url('font/sc2pulse.woff?jatffs') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -21,6 +21,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icofont-tools:before {
+  content: "\e908";
+}
 .icofont-random:before {
   content: "\e904";
   color: #646464;
@@ -85,8 +88,14 @@
 .icofont-clipboard:before {
   content: "\e9b8";
 }
+.icofont-sphere:before {
+  content: "\e9c9";
+}
 .icofont-link:before {
   content: "\e9cb";
+}
+.icofont-eye-blocked:before {
+  content: "\e9d1";
 }
 .icofont-plus:before {
   content: "\ea0a";
@@ -117,6 +126,9 @@
 }
 .icofont-filter:before {
   content: "\ea5b";
+}
+.icofont-share:before {
+  content: "\ea7d";
 }
 
 body
