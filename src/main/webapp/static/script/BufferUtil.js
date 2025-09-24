@@ -75,6 +75,41 @@ class BufferUtil
         }
     }
 
+    static updateGenericTeamLegacyUidLink(link, root)
+    {
+        if(BufferUtil.teamBuffer.buffer.size > 0) {
+            link.classList.remove("disabled");
+            const params = new URLSearchParams();
+            BufferUtil.teamBuffer.buffer.forEach(team=>params.append("teamLegacyUid", team.legacyUid));
+            link.setAttribute("href", root + params.toString());
+        } else {
+            link.classList.add("disabled");
+            link.setAttribute("href", "#");
+        }
+    }
+
+    static updateChatMmrCommandLink()
+    {
+        BufferUtil.updateGenericTeamLegacyUidLink(
+            document.querySelector("#team-buffer-chat-mmr-command"),
+            "https://sc2-pulse.github.io/chat-mmr/?"
+        );
+    }
+
+    static updateTeamStatsVerificationLink()
+    {
+        BufferUtil.updateGenericTeamLegacyUidLink(
+            document.querySelector("#team-buffer-team-stats-verification"),
+            "https://sc2-pulse.github.io/team-stats-verification/?"
+        );
+    }
+
+    static updateToolsMenu()
+    {
+        BufferUtil.updateChatMmrCommandLink();
+        BufferUtil.updateTeamStatsVerificationLink();
+    }
+
     static copyCharacterId(evt)
     {
         evt.preventDefault();
@@ -117,6 +152,7 @@ class BufferUtil
         document.querySelector("#team-buffer-copy-character-id").addEventListener("click", BufferUtil.copyCharacterId);
         document.querySelector("#team-buffer-copy-team-legacy-uid").addEventListener("click", BufferUtil.copyTeamLegacyUid);
         document.querySelector("#team-buffer-copy-clan-id").addEventListener("click", BufferUtil.copyClanId);
+        $('#team-buffer-tools-dropdown').on('show.bs.dropdown', BufferUtil.updateToolsMenu);
     }
 
     static createToggleElement(buf, item)
