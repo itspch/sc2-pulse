@@ -1957,7 +1957,7 @@ body.modal-open.modal-open-no-popup
 body.theme-dark .new.new-color:not(.btn):not(.nav-link):not(.page-link):not(.disabled),
 .new.new-color:not(.btn):not(.nav-link):not(.page-link):not(.disabled)
 {
-    color: #28a745;
+    color: #28a745 !important;
 }
 
 .matrix
