@@ -388,7 +388,7 @@ public class GeneralSeleniumIT
         driver.findElements(By.cssSelector("#ladder .team-buffer-toggle")).stream()
             .limit(3)
             .forEach(e->waitToBeClickableAndClick(wait, e));
-        clickDropdowns(driver, wait, "#team-buffer");
+        clickDropdown(driver, wait, driver.findElement(By.cssSelector("#team-buffer-copy")));
         WebElement teamBufferCollapse = driver.findElement(By.cssSelector("#team-buffer-collapse"));
         teamBufferCollapse.click();
         teamBufferCollapse.click();
@@ -691,21 +691,17 @@ public class GeneralSeleniumIT
         }
     }
 
-    public static void clickDropdowns
-    (WebDriver driver, WebDriverWait wait, String containerSelector)
+    public static void clickDropdown(WebDriver driver, WebDriverWait wait, WebElement dropdown)
     {
-        for(WebElement dropdown : driver.findElements(By.cssSelector(containerSelector + " [data-toggle=\"dropdown\"]")))
+        String id = dropdown.getAttribute("id");
+        WebElement menu = driver.findElement(
+            By.cssSelector(".dropdown-menu[aria" + "-labelledby=\"" + id + "\"]"));
+        for (WebElement menuItem : menu.findElements(By.cssSelector(".dropdown-item")))
         {
-            String id = dropdown.getAttribute("id");
-            WebElement menu = driver.findElement(
-                By.cssSelector(".dropdown-menu[aria" + "-labelledby=\"" + id + "\"]"));
-            for (WebElement menuItem : menu.findElements(By.cssSelector(".dropdown-item")))
-            {
-                dropdown.click();
-                wait.until(visibilityOf(menu));
-                menuItem.click();
-                wait.until(invisibilityOf(menu));
-            }
+            dropdown.click();
+            wait.until(visibilityOf(menu));
+            menuItem.click();
+            wait.until(invisibilityOf(menu));
         }
     }
 
