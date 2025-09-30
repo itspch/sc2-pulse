@@ -6,6 +6,7 @@ package com.nephest.battlenet.sc2.model.local.inner;
 import com.nephest.battlenet.sc2.model.QueueType;
 import com.nephest.battlenet.sc2.model.Race;
 import com.nephest.battlenet.sc2.model.Region;
+import com.nephest.battlenet.sc2.model.TeamFormat;
 import com.nephest.battlenet.sc2.model.TeamType;
 import com.nephest.battlenet.sc2.model.local.Team;
 import com.nephest.battlenet.sc2.model.validation.EntryCountMatchesPlayerCount;
@@ -84,7 +85,10 @@ public class TeamLegacyUid
         )
         {
             TeamLegacyIdEntry entry = uid.getId().getEntries().get(0);
-            return Stream.concat(Stream.of((Race) null), Arrays.stream(Race.values()))
+            Stream<Race> raceStream = uid.getQueueType().getTeamFormat() == TeamFormat._1V1
+                ? Arrays.stream(Race.values())
+                : Stream.of((Race) null);
+            return raceStream
                 .map
                 (
                     race->new TeamLegacyUid

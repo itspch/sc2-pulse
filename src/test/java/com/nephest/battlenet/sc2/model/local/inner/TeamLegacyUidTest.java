@@ -57,19 +57,35 @@ public class TeamLegacyUidTest
             (
                 new TeamLegacyUid
                 (
+                    QueueType.LOTV_1V1,
+                    TeamType.ARRANGED,
+                    Region.EU,
+                    TeamLegacyId.standard(List.of(new TeamLegacyIdEntry(1, 2L, true)))
+                ),
+                Arrays.stream(Race.values())
+                    .map(race->new TeamLegacyUid(
+                        QueueType.LOTV_1V1,
+                        TeamType.ARRANGED,
+                        Region.EU,
+                        TeamLegacyId.standard(List.of(new TeamLegacyIdEntry(1, 2L, race)))
+                    ))
+                    .toList()
+            ),
+            Arguments.of
+            (
+                new TeamLegacyUid
+                (
                     QueueType.LOTV_2V2,
                     TeamType.RANDOM,
                     Region.EU,
                     TeamLegacyId.standard(List.of(new TeamLegacyIdEntry(1, 2L, true)))
                 ),
-                Stream.concat(Stream.of((Race) null), Arrays.stream(Race.values()))
-                    .map(race->new TeamLegacyUid(
-                        QueueType.LOTV_2V2,
-                        TeamType.RANDOM,
-                        Region.EU,
-                        TeamLegacyId.standard(List.of(new TeamLegacyIdEntry(1, 2L, race)))
-                    ))
-                    .toList()
+                List.of(new TeamLegacyUid(
+                    QueueType.LOTV_2V2,
+                    TeamType.RANDOM,
+                    Region.EU,
+                    TeamLegacyId.standard(List.of(new TeamLegacyIdEntry(1, 2L, null)))
+                ))
             ),
             Arguments.of(notWildcardId, List.of(notWildcardId))
         );
