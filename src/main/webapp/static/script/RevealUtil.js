@@ -168,8 +168,8 @@ class RevealUtil
         }
         const container = evt.target.closest(".container-loading");
         Util.resetLoadingIndicator(container);
-        Util.load(container, ()=>RevealUtil.getPlayer(playerId).then(players=>{
-            const result = RevealUtil.editProPlayer(players[0]);
+        Util.load(container, ()=>RevealUtil.getPlayer(playerId).then(player=>{
+            const result = RevealUtil.editProPlayer(player);
             $("#reveal-player-edit-form").collapse("show");
             return result;
         }));

@@ -534,9 +534,9 @@ class CharacterUtil
     static updateCharacterProInfoModel(proPlayerId)
     {
         return RevealUtil.getPlayer(proPlayerId)
-            .then(proPlayers=>{
-                Model.DATA.get(VIEW.CHARACTER).get(VIEW_DATA.SEARCH).proPlayer = proPlayers[0];
-                return proPlayers[0];
+            .then(proPlayer=>{
+                Model.DATA.get(VIEW.CHARACTER).get(VIEW_DATA.SEARCH).proPlayer = proPlayer;
+                return proPlayer;
             });
     }
 
