@@ -84,7 +84,7 @@ public class TeamLegacyUid
         )
         {
             TeamLegacyIdEntry entry = uid.getId().getEntries().get(0);
-            return Arrays.stream(Race.values())
+            return Stream.concat(Stream.of((Race) null), Arrays.stream(Race.values()))
                 .map
                 (
                     race->new TeamLegacyUid

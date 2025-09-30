@@ -93,7 +93,7 @@ public class SpringDocConfig
                     * Team members must be sorted by realm and bnet id in ascending order.
                     * Only 1v1 teams have races, the race is null in other team formats,
                     i.e. `member1Realm.member1BnetId.`
-                    * The wildcard race `*` can be used for 1v1 mode teams.
+                    * The wildcard race `*` can be used for solo teams.
                     ## Rate limit
                     See `RateLimit-Limit` HTTP header to check current rate limits. The limit
                     refreshes every second. Other HTTP headers are not supported.

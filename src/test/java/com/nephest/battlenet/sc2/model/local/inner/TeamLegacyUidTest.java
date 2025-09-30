@@ -62,7 +62,7 @@ public class TeamLegacyUidTest
                     Region.EU,
                     TeamLegacyId.standard(List.of(new TeamLegacyIdEntry(1, 2L, true)))
                 ),
-                Arrays.stream(Race.values())
+                Stream.concat(Stream.of((Race) null), Arrays.stream(Race.values()))
                     .map(race->new TeamLegacyUid(
                         QueueType.LOTV_2V2,
                         TeamType.RANDOM,
