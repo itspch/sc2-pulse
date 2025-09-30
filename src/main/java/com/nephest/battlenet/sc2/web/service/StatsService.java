@@ -998,6 +998,34 @@ public class StatsService
         return leagueIds;
     }
 
+    public List<Future<Void>> updateCurrentSeasonLadderStructure(Set<Region> regions)
+    {
+        List<Future<Void>> tasks = new ArrayList<>(regions.size());
+        for(Region region : Region.values())
+        {
+            BlizzardSeason bSeason = sc2WebServiceUtil
+                .getCurrentOrLastOrExistingSeason(region, false);
+            List<Tuple2<BlizzardLeague, Region>> bLeagues = api
+                .getLeagues(getLeagueIds(bSeason, region, LadderUpdateContext.ALL), true)
+                .collectList()
+                .block();
+            tasks.add(dbExecutorService.submit(()->{
+                Season season = Season.of(bSeason, region);
+                seasonDao.merge(season);
+                for(Tuple2<BlizzardLeague, Region> bLeague : bLeagues)
+                {
+                    League league = League.of(season, bLeague.getT1());
+                    leagueDao.merge(league);
+                    for(BlizzardLeagueTier bTier : bLeague.getT1().getTiers())
+                        leagueTierDao.merge(LeagueTier.of(league, bTier));
+                }
+                LOG.info("Updated ladder structure for {}", season);
+            }, null));
+        }
+
+        return tasks;
+    }
+
     protected List<Tuple4<BlizzardLeague, Region, BlizzardLeagueTier, BlizzardTierDivision>> getLadderIds
     (Iterable<? extends Tuple5<Region, BlizzardSeason, BaseLeague.LeagueType, QueueType, TeamType>> ids, boolean cur)
     {

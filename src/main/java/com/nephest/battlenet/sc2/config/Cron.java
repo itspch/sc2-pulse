@@ -233,6 +233,13 @@ public class Cron
         });
     }
 
+    @Scheduled(cron="0 0 0/1 * * *")
+    public void updateCurrentSeasonLadderStructure()
+    {
+        webExecutorService.submit(()->
+            statsService.updateCurrentSeasonLadderStructure(globalContext.getActiveRegions()));
+    }
+
     private void nonStopUpdate()
     {
         if(!shouldUpdate()) {
