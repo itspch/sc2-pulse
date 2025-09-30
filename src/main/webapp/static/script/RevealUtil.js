@@ -252,7 +252,7 @@ class RevealUtil
                     container.textContent = "";
                 } else {
                     container.textContent =
-                        "Revealed by " + (all[1].accounts[0]?.battleTag || RevealUtil.LOG_SYSTEM_USER_NAME)
+                        "Revealed by " + (all[1]?.accounts[0]?.battleTag || RevealUtil.LOG_SYSTEM_USER_NAME)
                         + " on " + Util.DATE_TIME_FORMAT.format(Util.parseIsoDateTime(all[0].created));
                     container.appendChild(ElementUtil.createElement("div", null, "c-divider-hr"));
                 }
