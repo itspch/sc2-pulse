@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.web.service;
@@ -16,11 +16,16 @@ import static org.mockito.Mockito.when;
 
 import com.nephest.battlenet.sc2.model.BaseLeague;
 import com.nephest.battlenet.sc2.model.QueueType;
+import com.nephest.battlenet.sc2.model.Race;
 import com.nephest.battlenet.sc2.model.Region;
 import com.nephest.battlenet.sc2.model.TeamType;
+import com.nephest.battlenet.sc2.model.blizzard.BlizzardAccount;
+import com.nephest.battlenet.sc2.model.blizzard.BlizzardAccountKey;
 import com.nephest.battlenet.sc2.model.blizzard.BlizzardLadder;
+import com.nephest.battlenet.sc2.model.blizzard.BlizzardPlayerCharacter;
 import com.nephest.battlenet.sc2.model.blizzard.BlizzardTeam;
 import com.nephest.battlenet.sc2.model.blizzard.BlizzardTeamMember;
+import com.nephest.battlenet.sc2.model.blizzard.BlizzardTeamMemberRace;
 import com.nephest.battlenet.sc2.model.local.Division;
 import com.nephest.battlenet.sc2.model.local.League;
 import com.nephest.battlenet.sc2.model.local.LeagueTier;
@@ -43,12 +48,17 @@ import com.nephest.battlenet.sc2.model.local.dao.VarDAO;
 import com.nephest.battlenet.sc2.model.util.SC2Pulse;
 import com.nephest.battlenet.sc2.service.EventService;
 import com.nephest.battlenet.sc2.web.SeasonService;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.convert.ConversionService;
@@ -171,15 +181,73 @@ public class StatsServiceTest
         ss.setNestedService(nss);
     }
 
-    @Test
-    public void testInvalidTeam()
+    public static Stream<Arguments> testInvalidTeam()
     {
+        Instant now = SC2Pulse.instant();
+        Instant joined = now.minusSeconds(3600);
         BlizzardTeam noMembersTeam = new BlizzardTeam();
         noMembersTeam.setWins(1);
         BlizzardTeam zeroGamesTeam = new BlizzardTeam();
         zeroGamesTeam.setMembers(new BlizzardTeamMember[]{new BlizzardTeamMember()});
 
-        ss.updateTeams(new BlizzardLadder(new BlizzardTeam[]{noMembersTeam, zeroGamesTeam}, null),
+        BlizzardTeam longRaceGamesTeam = new BlizzardTeam
+        (
+            BigInteger.ONE,
+            new BlizzardTeamMember[]{new BlizzardTeamMember(
+                new BlizzardPlayerCharacter(1L, 1, "name"),
+                //exceeds short
+                new BlizzardTeamMemberRace[]
+                {
+                    new BlizzardTeamMemberRace(Race.ZERG, Short.MAX_VALUE + 1)
+                },
+                new BlizzardAccount(1L, "tag#1234", new BlizzardAccountKey("href"))
+            )},
+            now,
+            1L,
+            1,
+            1,
+            1,
+            0
+        );
+        longRaceGamesTeam.setJoined(joined);
+
+        BlizzardTeam longGamesTeam = new BlizzardTeam
+        (
+            BigInteger.ONE,
+            new BlizzardTeamMember[]{new BlizzardTeamMember(
+                new BlizzardPlayerCharacter(1L, 1, "name"),
+                //exceeds short
+                new BlizzardTeamMemberRace[]
+                {
+                    new BlizzardTeamMemberRace(Race.ZERG, 1)
+                },
+                new BlizzardAccount(1L, "tag#1234", new BlizzardAccountKey("href"))
+            )},
+            SC2Pulse.instant(),
+            1L,
+            //game count exceeds short
+            Short.MAX_VALUE - 2,
+            2,
+            1,
+            0
+        );
+        longGamesTeam.setJoined(joined);
+
+        return Stream.of
+        (
+            noMembersTeam,
+            zeroGamesTeam,
+            longRaceGamesTeam,
+            longGamesTeam
+        )
+            .map(Arguments::of);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testInvalidTeam(BlizzardTeam team)
+    {
+        ss.updateTeams(new BlizzardLadder(new BlizzardTeam[]{team}, null),
             mock(Season.class),
             new League(1, 1, BaseLeague.LeagueType.BRONZE, QueueType.LOTV_1V1, TeamType.ARRANGED),
             mock(LeagueTier.class), mock(Division.class));
