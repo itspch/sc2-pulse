@@ -1,9 +1,8 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.web.service;
 
-import com.github.twitch4j.helix.domain.Video;
 import com.nephest.battlenet.sc2.model.SocialMedia;
 import com.nephest.battlenet.sc2.model.local.PlayerCharacter;
 import com.nephest.battlenet.sc2.model.local.SocialMediaLink;
@@ -15,6 +14,7 @@ import com.nephest.battlenet.sc2.model.twitch.TwitchUser;
 import com.nephest.battlenet.sc2.model.twitch.TwitchVideo;
 import com.nephest.battlenet.sc2.model.twitch.dao.TwitchUserDAO;
 import com.nephest.battlenet.sc2.model.twitch.dao.TwitchVideoDAO;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchVideoDto;
 import com.nephest.battlenet.sc2.model.util.SC2Pulse;
 import com.nephest.battlenet.sc2.service.EventService;
 import com.nephest.battlenet.sc2.twitch.Twitch;
@@ -42,7 +42,7 @@ public class TwitchService
     public static final int VIDEO_BATCH_SIZE = 50;
     public static final int CONCURRENCY = 2;
     public static final Duration LINK_VIDEO_OFFSET = Duration.ofDays(1);
-    public static final Video.Type VIDEO_TYPE_FILTER = Video.Type.ARCHIVE;
+    public static final TwitchVideoDto.Type VIDEO_TYPE_FILTER = TwitchVideoDto.Type.ARCHIVE;
     public static final String VIDEO_VIEWABLE_FILTER = "public";
 
     private final TwitchUserDAO twitchUserDAO;
@@ -102,7 +102,7 @@ public class TwitchService
                 ),
                 CONCURRENCY
             )
-            .filter(video->video.getViewable().equals(VIDEO_VIEWABLE_FILTER))
+            .filter(video->video.viewable().equals(VIDEO_VIEWABLE_FILTER))
             .map(TwitchVideo::of)
             .buffer(VIDEO_BATCH_SIZE, HashSet::new)
             .flatMap(videos->WebServiceUtil.blockingCallable(()->twitchVideoDAO.merge(videos)))

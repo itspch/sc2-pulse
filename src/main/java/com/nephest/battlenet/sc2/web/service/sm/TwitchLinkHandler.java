@@ -1,11 +1,11 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.web.service.sm;
 
-import com.github.twitch4j.helix.domain.User;
 import com.nephest.battlenet.sc2.model.SocialMedia;
 import com.nephest.battlenet.sc2.model.local.SocialMediaLink;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchUserDto;
 import com.nephest.battlenet.sc2.model.util.SC2Pulse;
 import com.nephest.battlenet.sc2.twitch.Twitch;
 import com.nephest.battlenet.sc2.web.service.TwitchAPI;
@@ -41,15 +41,15 @@ implements SocialMediaLinkResolver, SocialMediaLinkUpdater
 
         return api.getUsersByLogins(loginLinks.keySet())
                 .map(u->{
-                    loginLinks.get(u.getLogin().toLowerCase()).forEach(link->resolve(u, link));
+                    loginLinks.get(u.login().toLowerCase()).forEach(link->resolve(u, link));
                     return u;
                 })
                 .then();
     }
 
-    private void resolve(User user, SocialMediaLink link)
+    private void resolve(TwitchUserDto user, SocialMediaLink link)
     {
-        link.setServiceUserId(user.getId());
+        link.setServiceUserId(user.id());
         update(user, link);
     }
 
@@ -65,19 +65,19 @@ implements SocialMediaLinkResolver, SocialMediaLinkUpdater
             .collect(Collectors.groupingBy(SocialMediaLink::getServiceUserId));
 
         return api.getUsersByIds(idLinks.keySet())
-            .flatMapIterable(user->update(user, idLinks.get(user.getId())));
+            .flatMapIterable(user->update(user, idLinks.get(user.id())));
     }
 
-    private List<SocialMediaLink> update(User user, Collection<SocialMediaLink> links)
+    private List<SocialMediaLink> update(TwitchUserDto user, Collection<SocialMediaLink> links)
     {
         return links.stream()
             .filter(link->update(user, link))
             .collect(Collectors.toList());
     }
 
-    private boolean update(User user, SocialMediaLink link)
+    private boolean update(TwitchUserDto user, SocialMediaLink link)
     {
-        String url = link.getType().getBaseUserUrl() + "/" + user.getLogin();
+        String url = link.getType().getBaseUserUrl() + "/" + user.login();
         if(link.getUrl().equals(url)) return false;
 
         link.setUrl(url);

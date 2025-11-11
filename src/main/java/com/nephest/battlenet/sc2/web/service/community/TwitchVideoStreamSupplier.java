@@ -1,11 +1,11 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.web.service.community;
 
-import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.User;
 import com.nephest.battlenet.sc2.model.SocialMedia;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchStreamDto;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchUserDto;
 import com.nephest.battlenet.sc2.twitch.Twitch;
 import com.nephest.battlenet.sc2.web.service.TwitchAPI;
 import jakarta.annotation.Nullable;
@@ -62,59 +62,59 @@ implements VideoStreamSupplier
             .flatMapIterable(TwitchVideoStreamSupplier::from);
     }
 
-    private Mono<Tuple2<List<Stream>, Map<String, User>>> zip(List<Stream> streams)
+    private Mono<Tuple2<List<TwitchStreamDto>, Map<String, TwitchUserDto>>> zip(List<TwitchStreamDto> streams)
     {
         Set<String> ids = streams.stream()
-            .map(Stream::getUserId)
+            .map(TwitchStreamDto::userId)
             .collect(Collectors.toSet());
         return Mono.just(streams)
             .zipWith(api.getUsersByIds(ids)
-                .collect(Collectors.toMap(User::getId, Function.identity())))
+                .collect(Collectors.toMap(TwitchUserDto::id, Function.identity())))
             .doOnNext(TwitchVideoStreamSupplier::logStreamsWithoutUsers);
     }
 
-    private static void logStreamsWithoutUsers(Tuple2<List<Stream>, Map<String, User>> data)
+    private static void logStreamsWithoutUsers(Tuple2<List<TwitchStreamDto>, Map<String, TwitchUserDto>> data)
     {
         if(data.getT1().size() == data.getT2().size()) return;
 
         data.getT1().stream()
-            .filter(s->data.getT2().get(s.getUserId()) == null)
-            .forEach(s->LOG.warn("Couldn't find user {} {}", s.getUserId(), s.getUserLogin()));
+            .filter(s->data.getT2().get(s.userId()) == null)
+            .forEach(s->LOG.warn("Couldn't find user {} {}", s.userId(), s.userLogin()));
     }
 
-    private static List<VideoStream> from(Tuple2<List<Stream>, Map<String, User>> data)
+    private static List<VideoStream> from(Tuple2<List<TwitchStreamDto>, Map<String, TwitchUserDto>> data)
     {
         return data.getT1().stream()
-            .map(stream->from(stream, data.getT2().get(stream.getUserId())))
+            .map(stream->from(stream, data.getT2().get(stream.userId())))
             .collect(Collectors.toList());
     }
 
-    public static VideoStream from(Stream stream, @Nullable User user)
+    public static VideoStream from(TwitchStreamDto stream, @Nullable TwitchUserDto user)
     {
         return new VideoStreamImpl
         (
             SocialMedia.TWITCH,
-            stream.getId(),
-            stream.getUserId(),
-            stream.getUserName(),
-            stream.getTitle(),
-            Locale.forLanguageTag(stream.getLanguage()),
+            stream.id(),
+            stream.userId(),
+            stream.userName(),
+            stream.title(),
+            Locale.forLanguageTag(stream.language()),
             generateStreamUrl(stream),
             user != null
-                ? normalizeStreamProfileImageUrlDimensions(user.getProfileImageUrl())
+                ? normalizeStreamProfileImageUrlDimensions(user.profileImageUrl())
                 : null,
             stream.getThumbnailUrl
             (
                 CommunityService.STREAM_THUMBNAIL_TARGET_WIDTH,
                 CommunityService.STREAM_THUMBNAIL_TARGET_HEIGHT
             ),
-            stream.getViewerCount()
+            stream.viewerCount()
         );
     }
 
-    public static String generateStreamUrl(Stream stream)
+    public static String generateStreamUrl(TwitchStreamDto stream)
     {
-        return SocialMedia.TWITCH.getBaseUserUrl() + "/" + stream.getUserLogin();
+        return SocialMedia.TWITCH.getBaseUserUrl() + "/" + stream.userLogin();
     }
 
     public static String normalizeStreamProfileImageUrlDimensions(String profileImageUrl)

@@ -47,8 +47,8 @@ spring.security.oauth2.client.registration.sc2-sys-kr.client-secret={client_secr
 discord.token={token}
 spring.security.oauth2.client.registration.discord-lg.client-id={client_id}
 spring.security.oauth2.client.registration.discord-lg.client-secret={client_secret}
-twitch.client-id={client_id}
-twitch.client-secret={client_secret}
+spring.security.oauth2.client.registration.twitch-sys.client-id={client_id}
+spring.security.oauth2.client.registration.twitch-sys.client-secret={client_secret}
 com.nephest.battlenet.sc2.aligulac.api.key={api_key}
 ```
 
@@ -90,8 +90,8 @@ discord.token={token}
 discord.bot.invite.url={discord_bot_invite_url}
 spring.security.oauth2.client.registration.discord-lg.client-id={client_id}
 spring.security.oauth2.client.registration.discord-lg.client-secret={client_secret}
-twitch.client-id={client_id}
-twitch.client-secret={client_secret}
+spring.security.oauth2.client.registration.twitch-sys.client-id={client_id}
+spring.security.oauth2.client.registration.twitch-sys.client-secret={client_secret}
 com.nephest.battlenet.sc2.aligulac.api.key={api_key}
 ```
 

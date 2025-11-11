@@ -15,6 +15,7 @@ import com.nephest.battlenet.sc2.config.security.SecurityBeanConfig;
 import com.nephest.battlenet.sc2.config.security.SecurityConfig;
 import com.nephest.battlenet.sc2.discord.Discord;
 import com.nephest.battlenet.sc2.discord.DiscordBootstrap;
+import com.nephest.battlenet.sc2.twitch.Twitch;
 import com.nephest.battlenet.sc2.web.service.AccountService;
 import com.nephest.battlenet.sc2.web.service.AlternativeLadderService;
 import com.nephest.battlenet.sc2.web.service.BlizzardPrivacyService;
@@ -76,6 +77,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = MapStatsFilmTestService.class),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = Cron.class),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = Startup.class),
+        @ComponentScan.Filter(type = FilterType.ANNOTATION, value = Twitch.class),
         @ComponentScan.Filter(type = FilterType.ANNOTATION, value = Discord.class),
         @ComponentScan.Filter(type = FilterType.ANNOTATION, value = Controller.class),
         @ComponentScan.Filter(type = FilterType.ANNOTATION, value = TestConfiguration.class)

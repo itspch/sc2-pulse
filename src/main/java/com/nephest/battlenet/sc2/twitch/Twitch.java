@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2023 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.twitch;
@@ -11,6 +11,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@ConditionalOnProperty(name = "twitch.client-secret")
+@ConditionalOnProperty(name = "spring.security.oauth2.client.registration.twitch-sys.client-secret")
 public @interface Twitch
 {}

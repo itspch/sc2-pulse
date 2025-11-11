@@ -1,9 +1,9 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.model.twitch;
 
-import com.github.twitch4j.helix.domain.User;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchUserDto;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 
@@ -53,12 +53,12 @@ public class TwitchUser
         return "TwitchUser{" + "id=" + id + '}';
     }
 
-    public static TwitchUser of(User user)
+    public static TwitchUser of(TwitchUserDto user)
     {
         return new TwitchUser
         (
-            Long.parseLong(user.getId()),
-            user.getLogin()
+            Long.parseLong(user.id()),
+            user.login()
         );
     }
 

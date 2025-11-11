@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2023 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.twitch;
@@ -11,7 +11,7 @@ import org.springframework.test.context.junit.jupiter.DisabledIf;
 
 @DisabledIf
 (
-    expression = "#{environment['twitch.client-secret'] == null}",
+    expression = "#{environment['spring.security.oauth2.client.registration.twitch-sys.client-secret'] == null}",
     reason = "Twitch key not found",
     loadContext = true
 )

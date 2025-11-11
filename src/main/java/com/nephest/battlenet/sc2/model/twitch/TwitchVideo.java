@@ -1,10 +1,9 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.model.twitch;
 
-import com.github.twitch4j.helix.domain.Video;
-import com.nephest.battlenet.sc2.model.util.SC2Pulse;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchVideoDto;
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -59,16 +58,16 @@ public class TwitchVideo
         return "TwitchVideo{" + "id=" + id + '}';
     }
 
-    public static TwitchVideo of(Video video)
+    public static TwitchVideo of(TwitchVideoDto dto)
     {
-        OffsetDateTime start = video.getCreatedAtInstant().atOffset(SC2Pulse.offsetDateTime().getOffset());
+        OffsetDateTime start = dto.createdAt();
         return new TwitchVideo
         (
-            Long.parseLong(video.getId()),
-            Long.parseLong(video.getUserId()),
-            video.getUrl(),
+            Long.parseLong(dto.id()),
+            Long.parseLong(dto.userId()),
+            dto.url(),
             start,
-            start.plus(Duration.parse("PT" + video.getDuration().toUpperCase()))
+            start.plus(Duration.parse("PT" + dto.duration().toUpperCase()))
         );
     }
 

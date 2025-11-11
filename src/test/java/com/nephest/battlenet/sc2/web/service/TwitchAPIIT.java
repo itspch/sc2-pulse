@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.web.service;
@@ -7,16 +7,21 @@ import static com.nephest.battlenet.sc2.web.service.community.TwitchVideoStreamS
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.helix.domain.Video;
 import com.nephest.battlenet.sc2.config.AllTestConfig;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchStreamDto;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchUserDto;
+import com.nephest.battlenet.sc2.model.twitch.dto.TwitchVideoDto;
 import com.nephest.battlenet.sc2.twitch.TwitchTest;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.sql.DataSource;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,6 +29,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Flux;
 
@@ -37,17 +44,33 @@ public class TwitchAPIIT
     private static TwitchAPI api;
 
     @BeforeAll
-    public static void beforeAll(@Autowired TwitchAPI api)
+    public static void beforeAll(@Autowired DataSource dataSource, @Autowired TwitchAPI api)
+    throws SQLException
     {
         TwitchAPIIT.api = api;
+        try(Connection connection = dataSource.getConnection())
+        {
+            ScriptUtils.executeSqlScript(connection, new ClassPathResource("schema-drop-postgres.sql"));
+            ScriptUtils.executeSqlScript(connection, new ClassPathResource("schema-postgres.sql"));
+        }
+    }
+
+    @AfterAll
+    public static void afterAll(@Autowired DataSource dataSource)
+    throws SQLException
+    {
+        try(Connection connection = dataSource.getConnection())
+        {
+            ScriptUtils.executeSqlScript(connection, new ClassPathResource("schema-drop-postgres.sql"));
+        }
     }
 
     public static Stream<Arguments> whenExceedingMaxUserBatchSize_thenSplitRequestOnSubBatches()
     {
         return Stream.of
         (
-            Arguments.of("132530558", (Function<Set<String>, Flux<User>>) api::getUsersByIds),
-            Arguments.of("nephest0x", (Function<Set<String>, Flux<User>>) api::getUsersByLogins)
+            Arguments.of("132530558", (Function<Set<String>, Flux<TwitchUserDto>>) api::getUsersByIds),
+            Arguments.of("nephest0x", (Function<Set<String>, Flux<TwitchUserDto>>) api::getUsersByLogins)
         );
     }
 
@@ -56,7 +79,7 @@ public class TwitchAPIIT
     public void whenExceedingMaxUserBatchSize_thenSplitRequestOnSubBatches
     (
         String val,
-        Function<Set<String>, Flux<User>> function
+        Function<Set<String>, Flux<TwitchUserDto>> function
     )
     {
         Set<String> largeBatch = Stream.concat
@@ -67,19 +90,19 @@ public class TwitchAPIIT
             Stream.of(val)
         )
             .collect(Collectors.toSet());
-        List<User> users = function.apply(largeBatch)
+        List<TwitchUserDto> users = function.apply(largeBatch)
             .collectList()
             .block();
         assertTrue(users.stream().anyMatch(
-            u->u.getLogin().equals("nephest0x")
-                && u.getId().equals("132530558"))
+            u->u.login().equals("nephest0x")
+                && u.id().equals("132530558"))
         );
     }
 
     @Test
     public void testGetStreamsByGameId()
     {
-        List<com.github.twitch4j.helix.domain.Stream> streams = api
+        List<TwitchStreamDto> streams = api
             .getStreamsByGameId(SC2_GAME_ID, 100)
             .collectList()
             .block();
@@ -88,18 +111,18 @@ public class TwitchAPIIT
             Twitch API returns other games sometimes. Ensure that at least *some* streams are
             related to the target game.
          */
-        assertTrue(streams.stream().anyMatch(s->s.getGameId().equals(SC2_GAME_ID)));
+        assertTrue(streams.stream().anyMatch(s->s.gameId().equals(SC2_GAME_ID)));
     }
 
     @Test
     public void testGetVideosByUserId()
     {
         String userId = "21635116"; //heromarine
-        Video.Type type = Video.Type.ARCHIVE;
-        List<Video> videos = api.getVideosByUserId(userId, type, 10).collectList().block();
+        TwitchVideoDto.Type type = TwitchVideoDto.Type.ARCHIVE;
+        List<TwitchVideoDto> videos = api.getVideosByUserId(userId, type, 10).collectList().block();
         assertFalse(videos.isEmpty());
         assertTrue(videos.stream().allMatch(s->
-            s.getUserId().equals(userId) && s.getType().equalsIgnoreCase(type.toString())));
+            s.userId().equals(userId) && s.type() == type));
     }
 
 }
