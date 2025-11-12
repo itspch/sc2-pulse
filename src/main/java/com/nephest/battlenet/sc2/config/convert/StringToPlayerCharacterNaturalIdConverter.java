@@ -4,7 +4,7 @@
 package com.nephest.battlenet.sc2.config.convert;
 
 import com.nephest.battlenet.sc2.model.PlayerCharacterNaturalId;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

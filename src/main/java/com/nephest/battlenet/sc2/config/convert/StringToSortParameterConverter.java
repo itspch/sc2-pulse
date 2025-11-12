@@ -11,8 +11,8 @@ import static com.nephest.battlenet.sc2.model.web.SortParameter.SUFFIX_DESC;
 
 import com.nephest.battlenet.sc2.model.SortingOrder;
 import com.nephest.battlenet.sc2.model.web.SortParameter;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

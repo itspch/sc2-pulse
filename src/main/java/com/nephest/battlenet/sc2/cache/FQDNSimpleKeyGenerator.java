@@ -1,11 +1,11 @@
-// Copyright (C) 2020-2022 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.cache;
 
 
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Method;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.stereotype.Component;

@@ -1,12 +1,12 @@
-// Copyright (C) 2020-2024 Oleksandr Masniuk
+// Copyright (C) 2020-2025 Oleksandr Masniuk
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package com.nephest.battlenet.sc2.config.convert.min;
 
+import jakarta.validation.constraints.NotNull;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalField;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 
 public class TemporalAccessorToMinimalObjectConverter
