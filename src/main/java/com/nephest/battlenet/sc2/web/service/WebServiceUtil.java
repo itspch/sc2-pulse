@@ -10,6 +10,7 @@ import com.nephest.battlenet.sc2.model.local.dao.VarDAO;
 import com.nephest.battlenet.sc2.model.validation.CursorNavigableResult;
 import com.nephest.battlenet.sc2.util.LogUtil;
 import com.nephest.battlenet.sc2.web.util.RateLimitData;
+import com.nephest.battlenet.sc2.web.util.ReactorRateLimiter;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -490,6 +491,92 @@ public class WebServiceUtil
             RATE_LIMIT_LIMIT_HEADER_NAME,
             RATE_LIMIT_REMAINING_HEADER_NAME,
             RATE_LIMIT_RESET_HEADER_NAME
+        );
+    }
+
+    public static <T> Mono<T> updateRequestRateAndHandleMonoResponse
+    (
+        ReactorRateLimiter rateLimiter,
+        ClientResponse response,
+        Class<T> clazz,
+        Set<? extends HttpStatusCode> contentStatuses,
+        Set<? extends HttpStatusCode> emptyStatuses
+    )
+    {
+        return !response.headers().header(RATE_LIMIT_LIMIT_HEADER_NAME).isEmpty()
+            ? rateLimiter.update(WebServiceUtil.parseRateLimit(response.headers().asHttpHeaders()))
+                .then(WebServiceUtil.handleMonoResponse(
+                    response,
+                    clazz,
+                    contentStatuses,
+                    emptyStatuses
+                ))
+            : WebServiceUtil.handleMonoResponse
+            (
+                response,
+                clazz,
+                contentStatuses,
+                emptyStatuses
+            );
+    }
+
+    public static <T> Mono<T> updateRequestRateAndHandleMonoResponse
+    (
+        ReactorRateLimiter rateLimiter,
+        ClientResponse response,
+        Class<T> clazz
+    )
+    {
+        return updateRequestRateAndHandleMonoResponse
+        (
+            rateLimiter,
+            response,
+            clazz,
+            CONTENT_STATUS_CODES,
+            EMPTY_STATUS_CODES
+        );
+    }
+
+    public static <T> Mono<T> updateRequestRateAndHandleMonoResponse
+    (
+        ReactorRateLimiter rateLimiter,
+        ClientResponse response,
+        ParameterizedTypeReference<T> typeReference,
+        Set<? extends HttpStatusCode> contentStatuses,
+        Set<? extends HttpStatusCode> emptyStatuses
+    )
+    {
+        return !response.headers().header(RATE_LIMIT_LIMIT_HEADER_NAME).isEmpty()
+            ? rateLimiter.update(WebServiceUtil.parseRateLimit(response.headers().asHttpHeaders()))
+                .then(WebServiceUtil.handleMonoResponse(
+                    response,
+                    typeReference,
+                    contentStatuses,
+                    emptyStatuses
+                ))
+            : WebServiceUtil.handleMonoResponse
+            (
+                response,
+                typeReference,
+                contentStatuses,
+                emptyStatuses
+            );
+    }
+
+    public static <T> Mono<T> updateRequestRateAndHandleMonoResponse
+    (
+        ReactorRateLimiter rateLimiter,
+        ClientResponse response,
+        ParameterizedTypeReference<T> typeReference
+    )
+    {
+        return updateRequestRateAndHandleMonoResponse
+        (
+            rateLimiter,
+            response,
+            typeReference,
+            CONTENT_STATUS_CODES,
+            EMPTY_STATUS_CODES
         );
     }
 

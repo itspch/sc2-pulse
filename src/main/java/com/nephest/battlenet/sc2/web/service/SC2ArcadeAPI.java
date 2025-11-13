@@ -78,14 +78,6 @@ extends BaseAPI
         return WebServiceUtil.parseRateLimit(response.headers().asHttpHeaders());
     }
 
-    private <T> Mono<T> readRequestRateAndExchangeToMono(ClientResponse response, Class<T> clazz)
-    {
-
-        if(!response.headers().header(WebServiceUtil.RATE_LIMIT_LIMIT_HEADER_NAME).isEmpty())
-            rateLimiter.update(getRateLimitData(response)).subscribe();
-        return WebServiceUtil.handleMonoResponse(response, clazz);
-    }
-
     /**
      * Find a character by region and game id. Useful when searching by in-game links.
      * @param region region
@@ -104,7 +96,8 @@ extends BaseAPI
                 Long.toUnsignedString(gameId)
             )
             .accept(APPLICATION_JSON)
-            .exchangeToMono(resp->readRequestRateAndExchangeToMono(resp, ArcadePlayerCharacter.class))
+            .exchangeToMono(resp->WebServiceUtil.updateRequestRateAndHandleMonoResponse(
+                rateLimiter, resp, ArcadePlayerCharacter.class))
             .retryWhen(rateLimiter.retryWhen(getRetry(WebServiceUtil.RETRY)))
             .delaySubscription(Mono.defer(rateLimiter::requestSlot));
     }
@@ -127,7 +120,8 @@ extends BaseAPI
                 naturalId.getBattlenetId()
             )
             .accept(APPLICATION_JSON)
-            .exchangeToMono(resp->readRequestRateAndExchangeToMono(resp, ArcadePlayerCharacter.class))
+            .exchangeToMono(resp->WebServiceUtil.updateRequestRateAndHandleMonoResponse(
+                rateLimiter, resp, ArcadePlayerCharacter.class))
             .retryWhen(rateLimiter.retryWhen(getRetry(WebServiceUtil.RETRY)))
             .delaySubscription(Mono.defer(rateLimiter::requestSlot));
     }
