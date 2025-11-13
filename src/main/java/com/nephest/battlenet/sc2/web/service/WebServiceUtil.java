@@ -35,6 +35,7 @@ import javax.net.ssl.SSLException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -620,6 +621,30 @@ public class WebServiceUtil
     )
     {
         return handleMonoResponse(response, targetClass, CONTENT_STATUS_CODES, EMPTY_STATUS_CODES);
+    }
+
+    public static <T> Mono<T> handleMonoResponse
+    (
+        ClientResponse response,
+        ParameterizedTypeReference<T> typeReference,
+        Set<? extends HttpStatusCode> contentStatuses,
+        Set<? extends HttpStatusCode> emptyStatuses
+    )
+    {
+        return contentStatuses.contains(response.statusCode())
+            ? response.bodyToMono(typeReference)
+            : emptyStatuses.contains(response.statusCode())
+                ? Mono.empty()
+                : response.createException().flatMap(Mono::error);
+    }
+
+    public static <T> Mono<T> handleMonoResponse
+    (
+        ClientResponse response,
+        ParameterizedTypeReference<T> typeReference
+    )
+    {
+        return handleMonoResponse(response, typeReference, CONTENT_STATUS_CODES, EMPTY_STATUS_CODES);
     }
 
     public static <T> Flux<T> handleFluxResponse
